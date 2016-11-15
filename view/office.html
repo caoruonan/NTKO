@@ -1,0 +1,247 @@
+<!--
+    office编辑页面
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8,IE=EmulateIE8,IE=7,IE=EmulateIE7" />
+    <title>OFFICE-EDIT</title>
+</head>
+<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+<link href="../css/StyleSheet.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../bower_components/respond/dest/respond.min.js"></script>
+<script type="text/javascript" src="../bower_components/ExplorerCanvas/excanvas.js"></script>
+<script type="text/javascript" src="../js/OfficeContorlFunctions.js"></script>
+<script language="JScript" for=TANGER_OCX event="OnDocumentClosed()">
+    setFileOpenedOrClosed(false);
+</script>
+<script>
+    function showOffice() {
+        var wordSelect = document.getElementById('wordSelect');
+        var excelSelect = document.getElementById('excelSelect');
+        var fileName = document.getElementById('fileName');
+        if (location.search.split('=')[1] == 'word') {
+            intializePage("../file/uploadOfficeFile/3.officefile.新建word文档.doc");
+            wordSelect.style.display = 'block';
+            excelSelect.style.display = 'none';
+            fileName.value = '新建word文档.doc';
+        }else if (location.search.split('=')[1] == 'excel') {
+            intializePage("../file/uploadOfficeFile/newExcelTemplate.xls");
+            wordSelect.style.display = 'none';
+            excelSelect.style.display = 'block';
+            fileName.value = '新建excel文档.xls';
+        }
+    }
+</script>
+<body onload='showOffice()' class="container-fluid" onbeforeunload ="onPageClose()">
+<form id="form1" action="../js/upLoadOfficeFile.jsp" enctype="multipart/form-data" style="padding:0;margin:0;">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-3">
+                        <div class="divdefault">
+                            <button class="btn btn-primary" onclick='saveFileToUrl()'>保存文档</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>文件名称</p>
+                        <input type="text" class="form-control" id="fileName" name="fileName" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>界面设置:</p>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.Menubar=!OFFICE_CONTROL_OBJ.Menubar;">菜单栏切换</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.ToolBars=!OFFICE_CONTROL_OBJ.ToolBars;">工具栏切换</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.IsShowInsertMenu=!OFFICE_CONTROL_OBJ.IsShowInsertMenu;">"插入"菜单切换</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.IsShowEditMenu=!OFFICE_CONTROL_OBJ.IsShowEditMenu;">"编辑"菜单切换</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.IsShowToolMenu=!OFFICE_CONTROL_OBJ.IsShowToolMenu;">"工具"菜单切换</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>打印控制:</p>
+                        <button type="button" class="btn btn-default" onclick="setFilePrint(true);">允许打印</button>
+                        <button type="button" class="btn btn-default" onclick="setFilePrint(false);">禁止打印</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.showDialog(5);">页面设置</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.PrintPreview();">打印预览</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>印章和图片功能:</p>
+                        <div class="btn-group">
+                            <select id="SignFileUrl" class="form-control" onchange="var signUrl=document.all('SignFileUrl').options[document.all('SignFileUrl').selectedIndex].value;if(signUrl==''){}else  addServerSign(signUrl);">
+                                <option value="">请选择服务器印章</option>
+                            </select>
+                        </div>
+                        <div class="btn-group">
+                            <select id="picFileUrl" class="form-control" onchange="var picURL=document.all('picFileUrl').options[document.all('picFileUrl').selectedIndex].value;if(picURL==''){}else addPicFromUrl(picURL);">
+                                <option value="">请选择服务器图片</option>
+                                <option value="../file/secSignFile/smallattproduct.jpg">服务器图片1</option>
+                                <option value="../file/secSignFile/smalldocproduct.jpg">服务器图片2</option>
+                                <option value="../file/secSignFile/smallsgnproduct.jpg">服务器图片3</option>
+                                <option value="../file/secSignFile/standard.gif">服务器图片4</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-default" onclick="addLocalSign();">添加本地印章</button>
+                        <button type="button" class="btn btn-default" onclick="doHandSign();">手写签名</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.SetReadOnly(true,'',1);">保护印章</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.SetReadOnly(false);">取消保护</button>
+                        <button type="button" class="btn btn-default" onclick="DoCheckSign();">印章验证</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.ActiveDocument.AcceptAllRevisions();">接受修订</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical" id="wordSelect">
+                        <p>模板套红功能:</p>
+                        <div class="btn-group">
+                            <select id="redHeadTemplateFile" class="form-control" onchange="var headFileURL=document.all('redHeadTemplateFile').options[document.all('redHeadTemplateFile').selectedIndex].value;if(headFileURL==''){}else insertRedHeadFromUrl(headFileURL);">
+                                <option value="">选择模板进行套红</option>
+                                <option value="../file/templateFile/sendFileRedHead.doc">发送文件红头</option>
+                                <option value="../file/templateFile/receiveReadHead.doc">接收文件红头</option>
+                                <option value="../file/templateFile/archivesRedHead.doc">办公文件红头</option>
+                            </select>
+                        </div>
+                        <div class="btn-group">
+                            <select id="templateFileWord" class="form-control" onchange="var templateFileUrl=document.all('templateFileWord').options[document.all('templateFileWord').selectedIndex].value;if(templateFileUrl==''){}else openTemplateFileFromUrl(templateFileUrl);">
+                                <option value="">选择模板进行打开</option>
+                                <option value="../file/templateFile/elegantReportTemplate.doc">典雅型报告模板</option>
+                                <option value="../file/templateFile/elegantMemoTemplate.doc">典雅型备忘录模板</option>
+                                <option value="../file/templateFile/elegantCommunicationTemplate.doc">典雅型通讯模板</option>
+                                <option value="../file/templateFile/theNorthSTLimitedCompanyTemplate.doc">北方科技有限公司模板</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-default" onclick="TANGER_OCX_AddDocHeader('某某政府机关红头文件');">动态编程套红</button>
+                    </div>
+                    <div class="btn-group-vertical" id="excelSelect">
+                        <p>模板套红功能:</p>
+                        <div class="btn-group">
+                            <select id="templateFile" class="form-control" onchange="var templateFileUrl=document.all('templateFile').options[document.all('templateFile').selectedIndex].value;if(templateFileUrl==''){}else openTemplateFileFromUrl(templateFileUrl);">
+                                <option value="">请选择模板进行打开</option>
+                                <option value="../file/templateFile/financialReportTemplate.xls">财务报表模板</option>
+                                <option value="../file/templateFile/cashFluxTemplate.xls">现金流量模板</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>痕迹保留功能:</p>
+                        <button type="button" class="btn btn-default" onclick="SetReviewMode(true);">保留痕迹</button>
+                        <button type="button" class="btn btn-default" onclick="SetReviewMode(false);">取消留痕</button>
+                        <button type="button" class="btn btn-default" onclick="setShowRevisions(true);">显示痕迹</button>
+                        <button type="button" class="btn btn-default" onclick="setShowRevisions(false);">隐藏痕迹</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.ActiveDocument.AcceptAllRevisions();">接受修订</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="btn-group-vertical">
+                        <p>权限控制:</p>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.SetReadOnly(true);">禁止编辑</button>
+                        <button type="button" class="btn btn-default" onclick="OFFICE_CONTROL_OBJ.SetReadOnly(false);">允许编辑</button>
+                        <button type="button" class="btn btn-default" onclick="setFileNew(true);">允许新建</button>
+                        <button type="button" class="btn btn-default" onclick="setFileNew(false);">禁止新建</button>
+                        <button type="button" class="btn btn-default" onclick="setFileSaveAs(true);">允许另存</button>
+                        <button type="button" class="btn btn-default" onclick="setFileSaveAs(false);">禁止另存</button>
+                        <button type="button" class="btn btn-default" onclick="setIsNoCopy(false);">允许拷贝</button>
+                        <button type="button" class="btn btn-default" onclick="setIsNoCopy(true);">禁止拷贝</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="officecontrol">
+                        <!--<script type="text/javascript" src="http://www.ntko.com/control/officecontrol/ntkoofficecontrol.js"></script>-->
+                        <script type="text/javascript" src="../js/ntkoofficecontrol.js"></script>
+                        <div id=statusBar></div>
+                        <script language="JScript" for=TANGER_OCX event="OnDocumentClosed()">
+                            setFileOpenedOrClosed(false);
+                        </script>
+                        <script language="JScript" for="TANGER_OCX" event="OnDocumentOpened(TANGER_OCX_str,TANGER_OCX_obj)">
+                            OFFICE_CONTROL_OBJ.activeDocument.saved=true;//saved属性用来判断文档是否被修改过,文档打开的时候设置成ture,当文档被修改,自动被设置为false,该属性由office提供.
+                            //获取文档控件中打开的文档的文档类型
+                            switch (OFFICE_CONTROL_OBJ.doctype)
+                            {
+                                case 1:
+                                    fileType = "Word.Document";
+                                    fileTypeSimple = "wrod";
+                                    break;
+                                case 2:
+                                    fileType = "Excel.Sheet";
+                                    fileTypeSimple="excel";
+                                    break;
+                                case 3:
+                                    fileType = "PowerPoint.Show";
+                                    fileTypeSimple = "ppt";
+                                    break;
+                                case 4:
+                                    fileType = "Visio.Drawing";
+                                    break;
+                                case 5:
+                                    fileType = "MSProject.Project";
+                                    break;
+                                case 6:
+                                    fileType = "WPS Doc";
+                                    fileTypeSimple="wps";
+                                    break;
+                                case 7:
+                                    fileType = "Kingsoft Sheet";
+                                    fileTypeSimple="et";
+                                    break;
+                                default :
+                                    fileType = "unkownfiletype";
+                                    fileTypeSimple="unkownfiletype";
+                            }
+                            setFileOpenedOrClosed(true);
+                        </script>
+                        <script language="JScript" for=TANGER_OCX event="BeforeOriginalMenuCommand(TANGER_OCX_str,TANGER_OCX_obj)">
+                            alert("BeforeOriginalMenuCommand事件被触发");
+                        </script>
+                        <script language="JScript" for=TANGER_OCX event="OnFileCommand(TANGER_OCX_str,TANGER_OCX_obj)">
+                            if (TANGER_OCX_str == 3)
+                            {
+                                alert("模板不能保存！请选择另存为");
+                                CancelLastCommand = true;
+                            }
+                        </script>
+                        <script language="JScript" for=TANGER_OCX event="AfterPublishAsPDFToURL(result,code)">
+                            result=trim(result);
+                            alert(result);
+                            document.all("statusBar").innerHTML="服务器返回信息:"+result;
+                            if(result=="文档保存成功。")
+                            {window.close();}
+                        </script>
+                        <script language="JScript" for=TANGER_OCX event="OnCustomMenuCmd2(menuPos,submenuPos,subsubmenuPos,menuCaption,menuID)">
+                            alert("第" + menuPos +","+ submenuPos +","+ subsubmenuPos +"个菜单项,menuID="+menuID+",菜单标题为\""+menuCaption+"\"的命令被执行.");
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

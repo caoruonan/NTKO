@@ -1,0 +1,408 @@
+<html>
+<head>
+    <title>平台版跨浏览器最精简示例</title>
+	<script type="text/javascript">
+		var TANGER_OCX_OBJ;
+		
+		function init()
+		{
+			TANGER_OCX_OBJ=document.getElementById("TANGER_OCX");//获取控件对象使用getElementById方法
+			TANGER_OCX_OBJ.activate(true);
+			//TANGER_OCX_OBJ.UILangCode =	"cht"; // cht chs  enu
+			if(window.navigator.platform=="Win64"){
+			TANGER_OCX_OBJ.AddDocTypePlugin(".tif","tif.NtkoDocument","4.0.0.2","officecontrol/ntkooledocallx64.cab",51,true);	
+			TANGER_OCX_OBJ.AddDocTypePlugin(".pdf","PDF.NtkoDocument","4.0.0.2","officecontrol/ntkooledocallx64.cab",51,true);	
+			
+			}else{
+			  	TANGER_OCX_OBJ.AddDocTypePlugin(".pdf","PDF.NtkoDocument","4.0.0.2","officecontrol/ntkooledocall.cab",51,true);
+				TANGER_OCX_OBJ.AddDocTypePlugin(".tif","tif.NtkoDocument","4.0.0.2","officecontrol/ntkooledocallx64.cab",51,true);	
+			}
+			//TANGER_OCX_OBJ.createnew("word.document");
+		
+			
+		}
+		
+		function OpenFromServer(){
+			TANGER_OCX_OBJ.BeginOpenFromURL("http://192.168.0.227:1986/ntkoSignServer/test.doc");
+		}
+		
+		function OpenFromLocal(){//打开本地文档
+			//此处使用对话框以让用户选择的方式打开； 如果使用OpenLocalFile 方法请保证参数正确,控件方法 属性等说明参考开发接口文档~~
+			/*
+			OpenLocalFile(Document, [ReadOnly], [ProgId])
+			功能：
+			打开本地文件。
+			参数：
+			名称	必选/可选	数据类型	说明
+			Document	必选	string	本地文档路径
+			ReadOnly	可选	bool	是否只读打开
+			ProgId	可选	string	文档类型
+			返回值：
+			无返回值
+			说明：
+			第一个参数Document必须是一个有效的文件磁盘路径。第二个参数ReadOnly只是禁止保存回本地而不是禁止修改编辑，
+			设置为true时，保存时会弹出另存窗口。如果文件有正确的扩展名，第三个参数ProgID可以省略，否则，必须指定ProgID。
+
+			*/
+			TANGER_OCX_OBJ.ShowDialog(1);//通过对话框选择文件打开
+			//TANGER_OCX_OBJ.OpenLocalFile("C:\\Test.docx");
+		}
+		
+		function AddBookMark(){
+			//选中位置添加书签；
+			var doc = TANGER_OCX_OBJ.ActiveDocument;
+			var rangeObj = doc.Application.Selection.Range;
+			doc.Bookmarks.Add("TestBookmarkName",rangeObj);
+			//显示书签
+			//TANGER_OCX_OBJ.ActiveDocument.ActiveWindow.View.ShadeEditableRanges = false;  
+			/*View.ShadeEditableRanges 属性  返回或设置一个 Long 类型的值，该值代表是否将底纹应用于文档中用户有权修改的区域。*/
+			TANGER_OCX_OBJ.ActiveDocument.ActiveWindow.View.ShowBookmarks = true;
+		}
+		
+		function SetBookMark(){
+			//设置书签值
+			var doc=TANGER_OCX_OBJ.ActiveDocument;
+			var bks=doc.Bookmarks;
+			if(bks.Exists("TestBookmarkName")){//书签存在 设置书签值
+				TANGER_OCX_OBJ.SetBookMarkValue("TestBookmarkName","这是刚刚通过控件方法设置的书签内容哦~~");
+				TANGER_OCX_OBJ.ShowTipMessage("提示","点击确定之后则是使用VBA接口选中书签");
+				//又或者使用VBA对应的接口进行设置
+				bks.Item("TestBookmarkName").Select();//选中书签；Bookmarks.Item("书签名") ； BookMarks.Item[序列号] 如BookMarks.Item[1]表示文中第一个书签
+			}else{
+				alert("没有操作需要的书签");
+			}
+		}
+		
+		
+		function GetBookMark(){
+			//获取书签值
+			var doc=TANGER_OCX_OBJ.ActiveDocument;
+			var bks=doc.Bookmarks;
+			if(bks.Exists("TestBookmarkName")){//书签存在 设置书签值
+				var bookmarkValue=TANGER_OCX_OBJ.GetBookMarkValue("TestBookmarkName");
+				TANGER_OCX_OBJ.ShowTipMessage("提示","通过控件获取的书签内容是："+bookmarkValue);
+				//又或者使用VBA对应的接口进行设置
+				var bkValue=bks.Item("TestBookmarkName").Range.Text;//Bookmarks.Item("书签名") 
+				TANGER_OCX_OBJ.ShowTipMessage("提示","通过VBA获取的书签文本内容是："+bkValue);	
+				
+				
+				var sBegin = 0;
+				var sEnd = 0;
+				//var docEnd = 0;
+				//书签存在
+				sBegin=bks("TestBookmarkName").Range.Start;
+				alert(sBegin);
+					sEnd=bks("TestBookmarkName").Range.End;
+					alert(sEnd);
+					sel.SetRange(sBegin,sEnd);//将可编辑区域的范围设置为书签内的范围即可
+					sel.Editors.Add(-1);			
+					doc.Protect(3,0,"123");
+			}else{
+				alert("没有操作需要的书签");
+			}
+		}
+	
+		function DeleteBookMarkValue(){
+			//删除书签值（不保留书签）
+			var doc=TANGER_OCX_OBJ.ActiveDocument;
+			var bks=doc.Bookmarks;
+			if(bks.Exists("TestBookmarkName")){//书签存在 设置书签值
+				bks.Item("TestBookmarkName").Range.Delete();
+				TANGER_OCX_OBJ.ShowTipMessage("提示","已通过VBA接口删除书签内容（不保留书签）");
+			}
+			else{
+				alert("没有操作需要的书签");
+			}
+		}		
+		
+		function DeleteBookMarkValue1(){
+			//删除书签值(保留书签)
+			var doc=TANGER_OCX_OBJ.ActiveDocument;
+			var bks=doc.Bookmarks;
+			if(bks.Exists("TestBookmarkName")){//书签存在 设置书签值
+				bks.Item("TestBookmarkName").Range.Delete();
+				TANGER_OCX_OBJ.ShowTipMessage("提示","已通过VBA接口删除书签内容(保留书签)");
+				//var doc = TANGER_OCX_OBJ.ActiveDocument;
+				var sel = doc.Application.Selection;
+				bks.add("TestBookmarkName",sel.Range);
+			}
+			else{
+				alert("没有操作需要的书签");
+			}
+		}	
+		
+		
+		function DeleteBookMark(){
+			//删除书签
+			var doc=TANGER_OCX_OBJ.ActiveDocument;
+			var bks=doc.Bookmarks;
+			if(bks.Exists("TestBookmarkName")){//书签存在 设置书签值
+				bks.Item("TestBookmarkName").Delete();
+				TANGER_OCX_OBJ.ShowTipMessage("提示","已通过VBA接口删除书签");
+			}
+			else{
+				alert("没有操作需要的书签");
+			}
+		}
+		
+		
+		
+		
+		
+		function addtemplate(){
+		
+			var doc = TANGER_OCX_OBJ.activedocument;
+			var app = doc.application;
+			var sel = app.selection;
+			
+			
+			var ps = doc.PageSetup;
+			var ph = ps.PageHeight;
+			var bm = ps.BottomMargin;
+			var cb = ph - bm;//得到文件正文页面的底部磅值
+			
+			app.ScreenUpdating = false;
+			 
+			//doc.ActiveDocument.Shapes("TextBox 3").TextFrame.TextRange.Text = "My Text";
+			 
+			//doc.ActiveDocument.Shapes("TextBox 3").top =cb-10;
+			
+			alert(doc.Shapes.count);
+				doc.Shapes(1).TextFrame.TextRange.Text = "My Text";
+			 
+			//doc.ActiveDocument.Shapes(1).top =cb-10;
+			
+			
+			app.ScreenUpdating = true;
+		
+			
+			
+			/*
+			var count  = sel.information(4);
+			
+			if(count<2){
+			doc.ActiveWindow.ActivePane.View.SeekView = 10;
+			sel.range.text = "1111";
+			doc.ActiveWindow.ActivePane.View.SeekView = 0;
+	
+			}else{
+			 sel.goto(1,1,count);
+			 app.ScreenUpdating = false;
+			 sel.InsertBreak(2);//插入分节符
+			 
+			// doc.ActiveWindow.ActivePane.View.SeekView = 9;
+			// sel.HeaderFooter.LinkToPrevious = false;
+			 doc.ActiveWindow.ActivePane.View.SeekView = 10;
+			 sel.HeaderFooter.LinkToPrevious = false;
+			
+			 doc.ActiveWindow.ActivePane.View.SeekView = 0;
+			 var cou =doc.Sections.count;
+			alert(cou);
+			doc.sections(cou).Footers(1).Range.Text = "Footer text";
+			 
+			}
+		app.ScreenUpdating = true;	
+		
+	        */
+		
+
+			
+
+			
+
+		
+		
+		}
+		
+		function InsertDocNote(){		
+	var bkName = "banji";
+	var doc = TANGER_OCX_OBJ.ActiveDocument;
+	var ps = doc.PageSetup;
+	var ph = ps.PageHeight;
+	var bm = ps.BottomMargin;
+	var cb = ph - bm;//得到文件正文页面的底部磅值
+	
+	var app = doc.Application;
+	var sel = app.Selection;
+	app.ScreenUpdating = false;
+	sel.EndKey(6,0);
+	var fb = sel.Information(6);//得到正文实际内容的最尾部磅值
+
+	if (doc.Bookmarks.Exists(bkName) && (doc.Bookmarks(bkName).Range.Tables.Count > 0))
+	{			
+		var tab = doc.Bookmarks(bkName).Range.Tables(1);
+		var r1 = tab.Rows(1).Range.Information(6);
+		var r = tab.Range;
+		r.Select();
+		sel.Collapse(0);
+		var hr = sel.Information(6);//得到表格的高度磅值
+		var th = hr - r1;	
+		if (th < 0)	//如果表格高度为负数，说明表格已经跨页，需要新插入一页，并将表格并到新页重新计算表格高度
+		{
+			tab.Range.Select();
+			sel.Cut();
+			sel.insertbreak(7);
+			sel.EndKey(6,0);
+			sel.Paste();
+			tab = doc.Bookmarks(bkName).Range.Tables(1);
+			r1 = tab.Rows(1).Range.Information(6);
+			r = tab.Range;
+			r.Select();
+			sel.Collapse(0);
+			hr = sel.Information(6);//得到表格的高度磅值
+			th = hr - r1;			
+		}
+		
+		var rows = tab.Rows;
+		rows.WrapAroundText = true;				//设置表格文字环绕为“环绕”
+		rows.RelativeVerticalPosition = 1;		//设置表格的垂直位置相对对象为页面
+		rows.VerticalPosition = cb - th - 2;	//设置表格的垂直位置，其中2为微调值
+	}
+	app.ScreenUpdating = true;
+}	
+
+
+
+function GotoWordBookMark1(){
+	alert("删除多余行")
+	
+	var doc=TANGER_OCX_OBJ.ActiveDocument;
+	var table=doc.Tables(1);
+	var app=doc.Application;
+	alert("count:"+doc.tables(1).rows.count )
+	
+	if("9"=="nothing"){		//无搜索结果提示
+		doc.range(table.cell(5,1).range.Start,table.cell(5,7).range.End).select();
+		app.Selection.Cells.Merge();
+		table.Cell(5,1).range.InsertAfter("未搜索找到符合条件的文件！");
+		
+	}else{	
+		try{
+		doc.range(table.cell(8,1).range.Start,table.cell(8,7).range.End).select();
+		//table.item(line).Select();
+		//app.Selection.Tables(1).Delete();
+		//alert(table.rows(line))
+		//doc.application.selection.Delete();
+		table.cell(8,1).select();
+		doc.application.selection.selectrow();
+		doc.application.selection.cells.Delete();  //删除特殊行
+		//table.rows(7).Delete();
+		}catch(e){alert(e.message)}
+	}	
+}
+
+function  add(){
+
+		var doc=TANGER_OCX_OBJ.ActiveDocument;
+		//doc.deleteallcomments();
+		//doc.deleteallinkannotations();
+		//doc.deleteallcommentsshown();
+		//alert("1");
+		doc.acceptallrevisions();
+
+}
+
+function addpic(){
+        var doc=TANGER_OCX_OBJ.ActiveDocument;
+		var app = doc.application;
+		var sel = app.selection;
+		var count = sel.Information(4);
+		
+		app.ScreenUpdating = false;
+		var date1=new Date();  //开始时间
+		
+		for(var i=1;i<=count;i++){
+		    sel.goto(1,1,i);
+			doc.Bookmarks.add("nihaoma"+i,sel.Range);
+			TANGER_OCX_OBJ.setbookmarkvalue("nihaoma"+i,"abc"+i);
+		
+		}
+		var date2=new Date();    //结束时间
+		var date3=date2.getTime()-date1.getTime();  //时间差的毫秒数
+		app.ScreenUpdating = true;
+		alert(date3);
+}
+
+function addtable(){
+      var doc = TANGER_OCX_OBJ.ActiveDocument;
+	  var app = doc.application;
+	  var table= doc.tables(1);
+      doc.range(table.range.end,table.range.end+1).select();
+	  app.selection.text = "表1：超期未办成事项";
+
+}
+
+function addtemp(){
+		
+		var data = "ABCDEFG123ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789ABCDEFG123456789456789";	
+		TANGER_OCX_OBJ.Add2DCodePic(2, data, false, 2, 2, 1, 100, 1, true);
+
+
+}
+
+
+function excelproect(){
+//TANGER_OCX_OBJ.activedocument.ActiveSheet.Protect("111111",true,true,true);
+//TANGER_OCX_OBJ.activedocument.Worksheets(1).Protect("111111",true,true,true);
+	TANGER_OCX_OBJ.addpicfromurl();
+}
+function u_watermark(){
+alert(111);
+ var app = TANGER_OCX_OBJ.activeDocument.Application;
+ app.ActiveWindow.ActivePane.View.SeekView = 9; 
+ alert(app.Selection.HeaderFooter.Shapes.count);
+ app.Selection.HeaderFooter.Shapes.Item(3).Delete(); //这儿的Delete 的D必须大写
+ alert(333);
+app.ActiveWindow.ActivePane.View.SeekView = 0;
+	} 
+
+function addbookmark(){
+   
+   var doc = TANGER_OCX_OBJ.ActiveDocument;
+    var sel = TANGER_OCX_OBJ.ActiveDocument.Application.Selection;
+    doc.Bookmarks.add("nihaoma",sel.Range);
+    doc.Bookmarks.item("nihaoma").range.text="aaa";
+   //	doc.Range(sel.Range.start,doc.Bookmarks("nihaoma").Range.end);//界定书签之前的区域
+   //	sel.typetext("ddddddd");//书签之前插入的内容
+	
+}
+function testabc(){
+TANGER_OCX_OBJ.activate(true);
+var app =TANGER_OCX_OBJ.ActiveDocument.Application;
+app.DisplayAlerts = false
+
+}
+	
+	
+	</script>
+	
+</head>
+
+<body onload="init();">
+	<form>
+		 <!-- <textarea id="NeiRong" name="NeiRong" rows="5"
+                               style="border: 1px solid #C0C0C0; color: #FF0000; width: 571px;"></textarea>-->
+	<h1>1.打开本地Word文档；
+	2.手动选中内容之后点击添加书签按钮；
+	3.对书签进行赋值；
+	4.获取书签值</h1>
+	<input type="button" value="打开服务器文档" onclick="OpenFromServer();"/>
+	<input type="button" value="打开文档" onclick="OpenFromLocal();"/>
+	<input type="button" value="添加书签" onclick="AddBookMark();"/>
+	<input type="button" value="设置书签值" onclick="SetBookMark();"/>
+	<input type="button" value="获取书签值" onclick="GetBookMark();"/>
+	
+	<input type="button" value="删除书签内容（不保留书签）" onclick="DeleteBookMarkValue();"/>
+	<input type="button" value="删除书签内容（保留书签）" onclick="DeleteBookMarkValue1();"/>
+    <input type="button" value="删除书签" onclick="DeleteBookMark();"/>
+    <script type="text/javascript" src="officecontrol/ntkoofficecontrol.js"></script>
+	
+	
+	<script  type="text/javascript" for= "TANGER_OCX" event = "ondocumentopened(a,b)">
+	    // toolbars = false;
+	   //  u_watermark();
+	   //InsertDocNote();
+	</script>
+  </form>
+</body>
+</html>

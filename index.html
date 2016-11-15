@@ -1,0 +1,50 @@
+<!--
+    index页面
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NTKO-office</title>
+    <meta content="IE=7" http-equiv="X-UA-Compatible" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link href="css/StyleSheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <form id="form1">
+        <div id="default" class="divdefault">
+            <div id="maindiv_top" class="maindiv_top">
+                <div id="index_button_div" class="index_button_div">
+                    <div class="list-content">
+                        <div class="col-md-12">
+                            <div>
+                                <div class="col-md-2 col-md-offset-5">
+                                    <button class="btn btn-primary" onclick="showFileEditPage('view/office.html?fileType=word',900,800);">创建新的word文档</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <div class="col-md-12">
+                            <div>
+                                <div class="col-md-2 col-md-offset-5">
+                                    <button class="btn btn-primary" onclick="showFileEditPage('view/office.html?fileType=excel',900,800);">创建新的excel文档</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+            </div>
+            <div id="maindiv_middle" class="maindiv_middle">
+            </div>
+        </div>
+    </form>
+    <script>
+        function showFileEditPage(URL,tWidth,tHeight) {
+            var winFeatures = "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,copyhistory=no,"+"width="+screen.width+"px,height="+screen.height;
+            window.open(URL,"",winFeatures);
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
